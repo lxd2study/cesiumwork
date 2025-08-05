@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./Cesium/Cesium.js"></script>
+    <link href="./Cesium/Widgets/widgets.css" rel="stylesheet">
+    <title>Cesium Earth -- 本地资源</title>
+    <style>
+        /* 重置基本样式 */
+        html, body, #earth {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="earth"></div>
+    <script>
+        const viewer = new Cesium.Viewer('earth');
+    </script>
+</body>
+</html>
