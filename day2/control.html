@@ -38,22 +38,12 @@
             navigationHelpButton: false,// 去除右上角的帮助控件
             baseLayerPicker: false, // 去除默认的影像图层
         });
-        viewer.screenSpaceEventHandler.setInputAction( // 监听屏幕空间事件，当用户双击鼠标左键时触发
-            (click) => { // 定义一个回调函数，当用户双击鼠标左键时执行
-                const cartesian = viewer.scene.pickPosition(click.position);
-                if (cartesian) {
-                    // 把 cartesian 转成制图坐标，加 300 米后再飞
-                    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                    const lon = Cesium.Math.toDegrees(cartographic.longitude);
-                    const lat = Cesium.Math.toDegrees(cartographic.latitude);
-                    viewer.camera.flyTo({
-                        destination: Cesium.Cartesian3.fromDegrees(lon, lat, 1000), // 300 米俯瞰
-                        duration: 3
-                    });
-                }
-            },
-            Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK // 监听的事件类型为鼠标左键双击
-        );
+        viewer.scene.screenSpaceCameraController.enableRotate = true; // 允许旋转
+        viewer.scene.screenSpaceCameraController.enableZoom = true; // 允许缩放
+        viewer.scene.screenSpaceCameraController.enableLook = true; // 允许俯仰
+        viewer.scene.screenSpaceCameraController.enableTilt = true; // 允许倾斜
+        // 你可以修改运行感受一下带来的效果
+
     </script>
 </body>
 

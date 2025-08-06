@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Cesium.js"></script>
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <title>Cesium Earth</title>
+    <title>整洁的空Cesium Earth</title>
     <style>
         /* 重置基本样式 */
         html,
@@ -38,22 +38,6 @@
             navigationHelpButton: false,// 去除右上角的帮助控件
             baseLayerPicker: false, // 去除默认的影像图层
         });
-        viewer.screenSpaceEventHandler.setInputAction( // 监听屏幕空间事件，当用户双击鼠标左键时触发
-            (click) => { // 定义一个回调函数，当用户双击鼠标左键时执行
-                const cartesian = viewer.scene.pickPosition(click.position);
-                if (cartesian) {
-                    // 把 cartesian 转成制图坐标，加 300 米后再飞
-                    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                    const lon = Cesium.Math.toDegrees(cartographic.longitude);
-                    const lat = Cesium.Math.toDegrees(cartographic.latitude);
-                    viewer.camera.flyTo({
-                        destination: Cesium.Cartesian3.fromDegrees(lon, lat, 1000), // 300 米俯瞰
-                        duration: 3
-                    });
-                }
-            },
-            Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK // 监听的事件类型为鼠标左键双击
-        );
     </script>
 </body>
 
