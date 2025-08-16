@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <title>天地图影像</title>
+    <style>
+        /* 重置基本样式 */
+        html,
+        body,
+        #earth {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cesium-widget-credits {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="earth"></div>
+    <script>
+        Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmMmY3MWFlMS0xNmJkLTQ4ZDktYjViOC1kMmRhZDY5YWFiYTUiLCJpZCI6MTUxMzE1LCJpYXQiOjE2OTI1MzUwNTF9.EHjYEmZ30sa36HF5ZiuonIIVDSkJZI1kh6qDrpd1z0I";
+        const viewer = new Cesium.Viewer('earth', {
+            animation: false,// 去除左下角的动画控件
+            geocoder: false,// 去除右上角的搜索控件
+            cesiumWidget: false,// 去除右上角的版权信息
+            fullscreenButton: false,// 去除右上角的全屏控件
+            homeButton: false,// 去除右上角的主页控件
+            sceneModePicker: false,// 去除右上角的场景模式控件
+            timeline: false,// 去除下方的时间线控件
+            navigationHelpButton: false,// 去除右上角的帮助控件
+            baseLayerPicker: false, // 去除默认的影像图层
+        });
+
+        // 创建天地图影像图层WebMapTileServiceImageryProvider
+
+        const tdt = new Cesium.WebMapTileServiceImageryProvider({
+            url: 'https://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=ac919d63816e20e2179ef656191edacd',
+            layer: '天地图',
+            maxmumLevel: 18,
+            format: 'image/png',
+
+        })
+
+        // 添加图层view.imageryLayers.addImageryProvider
+        // viewer.imageryLayers.addImageryProvider(tdt);
+
+        const layer = async () => {
+            viewer.imageryLayers.addImageryProvider(
+                await Cesium.IonImageryProvider.fromAssetId(4),
+            );
+        };
+
+        layer();
+
+    </script>
+</body>
+
+</html>

@@ -20,3 +20,9 @@ control.html 添加鼠标控制
 fly2click.html 添加鼠标点击飞行到指定地方
 
 round.html 添加地球旋转
+
+## Day 3
+
+- 创建天地图影像图层WebMapTileServiceImageryProvider
+
+- 添加图层view.imageryLayers.addImageryProvider
