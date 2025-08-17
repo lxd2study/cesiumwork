@@ -55,7 +55,37 @@
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 点贴地
             },
         });
-        viewer.zoomTo(entity);
+
+        //添加线
+        const point = [
+            116.4, 39.906776,
+            116.3, 39.906772,
+        ]
+        const line = viewer.entities.add({
+            name: '测试线',
+            polyline: {
+                positions: Cesium.Cartesian3.fromDegreesArray(point),
+                width: 5,
+                material: Cesium.Color.RED,
+                clampToGround: true, // 线贴地
+            },
+        });
+        viewer.zoomTo(line);
+
+        // 添加面
+        const polygon = viewer.entities.add({
+            name: '测试面',
+            polygon: {
+                hierarchy: Cesium.Cartesian3.fromDegreesArray([
+                    116.5, 39.906776,
+                    116.5, 39.907776,
+                    116.3, 39.907776,
+                    116.3, 39.906776
+                ]),
+                material: Cesium.Color.BLUE.withAlpha(0.5),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 面贴地
+            },
+        });
     </script>
 </body>
 
