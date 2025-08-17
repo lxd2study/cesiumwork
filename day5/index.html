@@ -55,10 +55,10 @@
                     121.4747, 31.2314,
                     121.4737, 31.2314
                 ]),
+                // 使用回调函数动态高度
                 extrudedHeight: new Cesium.CallbackProperty(() => {
                     return Date.now() % 100000 / 50; // 0~2000 米循环
-                }, false),
-                // 贴地
+                }, false), // 结束某个事件监听器的设置，使用布尔值false表示不使用捕获阶段
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                 material: Cesium.Color.BLUE.withAlpha(0.5),
                 outline: true,
