@@ -70,8 +70,6 @@
                 clampToGround: true, // 线贴地
             },
         });
-        viewer.zoomTo(line);
-
         // 添加面
         const polygon = viewer.entities.add({
             name: '测试面',
@@ -86,7 +84,7 @@
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 面贴地
             },
         });
-        
+        viewer.zoomTo(line);
     </script>
 </body>
 
