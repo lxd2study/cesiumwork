@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <title>Cesium Earth</title>
+    <style>
+        /* 重置基本样式 */
+        html,
+        body,
+        #earth {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cesium-widget-credits {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="earth"></div>
+    <script>
+        const viewer = new Cesium.Viewer('earth', {
+            animation: false,// 去除左下角的动画控件
+            geocoder: false,// 去除右上角的搜索控件
+            cesiumWidget: false,// 去除右上角的版权信息
+            fullscreenButton: false,// 去除右上角的全屏控件
+            homeButton: false,// 去除右上角的主页控件
+            sceneModePicker: false,// 去除右上角的场景模式控件
+            timeline: false,// 去除下方的时间线控件
+            navigationHelpButton: false,// 去除右上角的帮助控件
+            baseLayerPicker: false, // 去除默认的影像图层
+        });
+        // 创建包含标签和广告牌的实体
+        const entity = viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(116.39, 39.91,200),
+            name: "北京故宫", // 实体的名称
+            label: {
+                text: "北京故宫",
+                font: "24px sans-serif",
+                fillColor: Cesium.Color.WHITE,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 4,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,  // 修改为TOP，使文字从顶部开始
+                pixelOffset: new Cesium.Cartesian2(0, -30)  // 向下偏移文字，使其在billboard下方
+            },
+            billboard: {
+                image: "./商店-01.png",
+                width: 50,
+                height: 50,
+                scale: 0.5,
+                verticalOrigin: Cesium.VerticalOrigin.TOP, // 修改为BOTTOM，使广告牌底部对齐位置
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1000) // 0米到1000米内可见
+            },    
+        });
+        viewer.zoomTo(entity);
+
+    </script>
+</body>
+
+</html>
