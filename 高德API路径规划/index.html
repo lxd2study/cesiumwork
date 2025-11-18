@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../Build/Cesium/Widgets/widgets.css">
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        html,
+        body,
+        #main {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cesium-widget-credits {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main"></div>
+</body>
+<script src="https://webapi.amap.com/maps?v=2.0&key=0c310e7dd387e5b24e944f9e8e9cae88"></script>
+<script src="./gcoord.global.prod.js"></script>
+<script>
+    // 配置常量
+    const CONFIG = {
+        CESIUM_ACCESS_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTkyNDQxMi00ZmVmLTRmNmItODY3OS04YTAyMDRkZWM5ZmIiLCJpZCI6MTUxMzE1LCJpYXQiOjE2ODg0NjgyMjN9.vnG23heAtCtjdz2BthH-RVSs9Rl0-vC3MHWuHFYUuGE',
+        AMAP_API_KEY: '0c310e7dd387e5b24e944f9e8e9cae88',
+        AMAP_API_URL: 'https://restapi.amap.com/v3/direction/walking',
+        ROUTE_ENTITY_ID: 'uniqueLineId'
+    };
+
+    // 设置Cesium访问令牌
+    Cesium.Ion.defaultAccessToken = CONFIG.CESIUM_ACCESS_TOKEN;
+
+    // 初始化Cesium，使用本地底图避免token问题
+    const viewer = new Cesium.Viewer('main', {
+        animation: false,
+        geocoder: false,
+        cesiumWidget: false,
+        fullscreenButton: false,
+        homeButton: false,
+        sceneModePicker: false,
+        timeline: false,
+        navigationHelpButton: false,
+        baseLayerPicker: false,
+    });
+
+    // 显示加载状态
+    function showLoading() {
+        viewer.entities.add({
+            id: 'loadingIndicator',
+            position: Cesium.Cartesian3.fromDegrees(116.796432, 38.295144),
+            label: {
+                text: '正在规划路径...',
+                font: '14pt sans-serif',
+                pixelOffset: new Cesium.Cartesian2(0, -50),
+                backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
+                showBackground: true
+            }
+        });
+    }
+
+    // 隐藏加载状态
+    function hideLoading() {
+        const loadingEntity = viewer.entities.getById('loadingIndicator');
+        if (loadingEntity) {
+            viewer.entities.remove(loadingEntity);
+        }
+    }
+
+    // 显示错误信息
+    function showError(message) {
+        viewer.entities.add({
+            id: 'errorIndicator',
+            position: Cesium.Cartesian3.fromDegrees(116.796432, 38.295144),
+            label: {
+                text: message,
+                font: '14pt sans-serif',
+                pixelOffset: new Cesium.Cartesian2(0, -50),
+                backgroundColor: Cesium.Color.RED.withAlpha(0.7),
+                showBackground: true,
+                fillColor: Cesium.Color.WHITE
+            }
+        });
+        
+        // 5秒后自动移除错误提示
+        setTimeout(() => {
+            const errorEntity = viewer.entities.getById('errorIndicator');
+            if (errorEntity) {
+                viewer.entities.remove(errorEntity);
+            }
+        }, 5000);
+    }
+
+    // 坐标转换函数
+    function transformCoordinates(points, fromCRS, toCRS) {
+        return gcoord.transform(points, fromCRS, toCRS);
+    }
+
+    // 解析路径数据
+    function parsePathData(routeData) {
+        return routeData.route.paths[0].steps.map(step => {
+            return step.polyline.split(';').map(point => {
+                const [lng, lat] = point.split(',').map(parseFloat);
+                const [wgsLng, wgsLat] = transformCoordinates(
+                    [lng, lat],
+                    gcoord.GCJ02,
+                    gcoord.WGS84
+                );
+                return Cesium.Cartesian3.fromDegrees(wgsLng, wgsLat);
+            });
+        }).flat();
+    }
+
+    // 在地图上绘制路径
+    function drawRouteOnMap(path) {
+        viewer.entities.add({
+            id: CONFIG.ROUTE_ENTITY_ID,
+            polyline: {
+                positions: path,
+                width: 5,
+                material: Cesium.Color.RED,
+                clampToGround: true
+            }
+        });
+        
+        // 定位到路径
+        viewer.zoomTo(viewer.entities.getById(CONFIG.ROUTE_ENTITY_ID));
+    }
+
+    // 路径规划主函数
+    async function planRoute() {
+        try {
+            // 清除之前的路径
+            const existingRoute = viewer.entities.getById(CONFIG.ROUTE_ENTITY_ID);
+            if (existingRoute) {
+                viewer.entities.remove(existingRoute);
+            }
+
+            // 显示加载状态
+            showLoading();
+
+            const startPoint = [116.796432, 38.295144];
+            const endPoint = [116.797453, 38.292905];
+
+            // 坐标转换
+            const gcjStartPoint = transformCoordinates(startPoint, gcoord.WGS84, gcoord.GCJ02);
+            const gcjEndPoint = transformCoordinates(endPoint, gcoord.WGS84, gcoord.GCJ02);
+
+            // 构建请求参数
+            const params = new URLSearchParams({
+                key: CONFIG.AMAP_API_KEY,
+                origin: gcjStartPoint.join(','),
+                destination: gcjEndPoint.join(',')
+            });
+
+            // 发送请求
+            const response = await fetch(`${CONFIG.AMAP_API_URL}?${params}`);
+            const data = await response.json();
+
+            // 隐藏加载状态
+            hideLoading();
+
+            // 处理响应数据
+            if (data.status === '1' && data.route?.paths?.length > 0) {
+                const path = parsePathData(data);
+                drawRouteOnMap(path);
+            } else {
+                throw new Error(data.info || '路径规划失败');
+            }
+
+        } catch (error) {
+            hideLoading();
+            console.error('路径规划错误:', error);
+            showError(`路径规划失败: ${error.message}`);
+        }
+    }
+
+    // 确保所有资源加载完成后再执行路径规划
+    window.addEventListener('load', function() {
+        // 延迟执行确保所有组件初始化完成
+        setTimeout(planRoute, 1000);
+    });
+</script>
+
+</html>
